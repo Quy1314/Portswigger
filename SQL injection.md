@@ -185,4 +185,49 @@ qua đó mình sẽ thu được thông tin của adminstrator là:
 * **username= administrator**
 * **password= im4gh819ktv1fsmfx11z**
 ![image](https://github.com/user-attachments/assets/5027451e-0792-4758-bf70-e925989c71d4)
-Mình đã thành công đăng nhập vào account của admin.
+Mình đã thành công đăng nhập vào account của admin. 
+
+## LAB6: SQL injection UNION attack, retrieving multiple values in a single column 
+![image](https://github.com/user-attachments/assets/fbb68f1b-cb87-4c52-9924-d6380617c58c) 
+Nhìn có vẻ giống như Lab trước đó nên ý tưởng sẽ là tìm số cột cần sử dụng , tìm cột chứa dữ liệu string và sau đó truy xuất thông tin của tài khoản adminstator.
+
+### Kiểm tra số column
+Vì phần trước mình đã dùng ORDER BY r nên phần này mình thử dùng NULL nhé:
+
+Sau khi kiểm tra thì mình nhận thấy chỉ có 2 columns được SELECT.
+![image](https://github.com/user-attachments/assets/c0232966-38fb-4324-8713-6db0d6aee597) 
+
+### Kiểm tra column chứa kiểu string
+![image](https://github.com/user-attachments/assets/9400387f-f2e9-43fa-bb97-7fe6d719a1a7) 
+Tiếp tục thế thử các cụm 'ABCEDF' thì chỉ có column thứ 2 nhận kiểu string
+
+### Truy xuất thông tin users
+Vì thông tin chúng ta cần username và password nhưng chúng ta chỉ có 1 cột được phép chứa thông tin kiểu string nên mình sẽ dùng ghép chuỗi ( Trong oracle như lab thì nó là   | | ).
+Truy vấn mình chèn vào là:
+```sql=
+'+UNION+SELECT+NULL,username||'~'||password+FROM+users-- 
+```
+![image](https://github.com/user-attachments/assets/86ac84dc-52c3-411a-aa6a-911b0c6ce960) 
+Mình đã có thông tin của adminstrator:
+* **username: adminstrator.**
+* **password: px9mnv901iypdwbkk07x.**
+
+### Kiểm tra thông tin
+![image](https://github.com/user-attachments/assets/f33a8112-1eee-4bdf-8c77-408e63466bc4)  
+Như vậy là chúng ta đã hoàn thành bài lab.
+
+## Examining the database in SQL injection attacks
+Khi thai thác các lỗ hổng bảo mật về SQL, chúng ta cần có thông tin về cơ sở dữ liệu (database) bao gồm:
+* **Phiên bản và loại database.**
+* **Các tables và columns có trong database.**
+Bạn có thể thử bằng các lệnh ứng với các nhà phát triển:
+
+
+| Database type    | Query                   |
+| ---------------- | ----------------------- |
+| Microsoft, MySQL | SELECT @@version        |
+| Oracle           | SELECT * FROM v$version |
+| PostgreSQL       | SELECT version()        |  
+## LAB 7: SQL injection attack, querying the database type and version on MySQL and Microsoft
+![image](https://github.com/user-attachments/assets/2448b203-381b-46f9-809b-e9350f0ee3b7) 
+Yêu cầu đề bài là tìm ra phiên bản của database, nên mình sẽ tìm column nào tương thích với kiểu string rồi sau đó sẽ thử từng lệnh của mỗi database vào nhé.
