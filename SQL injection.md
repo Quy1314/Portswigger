@@ -2,8 +2,7 @@
 Hello mấy ní hôm nay cùng tìm hiểu SQL injection trên Portswigger nhé =)))). 
 ## SQL là gì?
 Sql injection là một lỗ hổng bảo mật web ( web security vulnerability ) cho phép các hacker can thiệp vào các truy vấn mà application tạo ra để gửi đến các database của nó.
-![image](https://github.com/user-attachments/assets/73811511-6f78-42c0-847d-3549dceaf451)  
-
+![image](https://github.com/user-attachments/assets/73811511-6f78-42c0-847d-3549dceaf451)   
 ### **Question: Vây các hacker có thể khai thác được gì từ SQLI?**
 * Các hacker có thể xem những thông tin mà thông thường chúng ta không thể thấy được.
 * Kẻ tấn công còn có thể thông qua đó mà chỉnh sửa và xóa đi các thông tin quan trọng trong database. 
@@ -231,3 +230,10 @@ Bạn có thể thử bằng các lệnh ứng với các nhà phát triển:
 ## LAB 7: SQL injection attack, querying the database type and version on MySQL and Microsoft
 ![image](https://github.com/user-attachments/assets/2448b203-381b-46f9-809b-e9350f0ee3b7) 
 Yêu cầu đề bài là tìm ra phiên bản của database, nên mình sẽ tìm column nào tương thích với kiểu string rồi sau đó sẽ thử từng lệnh của mỗi database vào nhé.
+### Kiểm tra số column và column chứa kiểu string
+Sau khi kiểm tra thì mình thấy chỉ cần dùng tới 2 columns và cả hai đều có thể chứa kiểu sring nên sau đó mình thử các lệnh truy xuất phiên bản vào
+### Kiểm tra phiên bản
+Vì mình đã biết phải dùng comment của MYSQL nên mình sẽ chèn ```' UNION SELECT @@version#``` vào nhé.
+![image](https://hackmd.io/_uploads/S1pX8OUnye.png)
+Phiên bản trả về là ```8.0.39```.
+
